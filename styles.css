@@ -49,3 +49,7 @@ table {
 
 /* Custom styles go below here */
 
+h1 {font-size: 48px;margin: 20px 0;}
+table {text-align: center;}
+table th {padding: 0 5px;font-weight: bold;}
+table td {padding: 5px;}
