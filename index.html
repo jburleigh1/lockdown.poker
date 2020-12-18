@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>HTML5 boilerplate – all you really need…</title>
-	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="styles.css">
 </head>
 
 <body id="">
@@ -145,6 +145,7 @@
                     console.log(winner +' wins with '+hand)
                     var winnerRow = document.body.querySelector('tr[data-name="'+winner+'"]')
                     winnerRow.children[2].insertAdjacentHTML('beforeend', 'i')
+                    //console.log(winnerRow.children[2].innerHTML.length)
                     winnerRow.querySelector('[data-hand="'+hand+'"]').insertAdjacentHTML('beforeend', 'i');
                 }
             }
