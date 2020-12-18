@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>HTML5 boilerplate – all you really need…</title>
+	<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body id="">
+
+    <h1>Lockdown Poker</h1>
+
+    <div id="results">
+        <table>
+            <thead>
+              <tr>
+                <th>Player Name</th>
+                <th># Wins</th>
+                <th>Pair</th>
+                <th>Two Pair</th>
+                <th>Three of a Kind</th>
+                <th>Straight</th>
+                <th>Flush</th>
+                <th>Full House</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>x</td>
+                <td>x</td>
+                <td>x</td>
+                <td>x</td>
+                <td>x</td>
+                <td>x</td>
+                <td>x</td>
+                <td>x</td>                
+              </tr>
+            </tbody>
+            </table>
+    </div>
+    
+    <script>
+        //var csv is the CSV file with headers
+        
+        fetch('/log.csv')
+          .then(response => response.text())
+          .then((data) => {
+            console.log(data)
+            log = data;
+            csvJSON(log)
+          })
+        
+        
+        function csvJSON(csv){
+        
+          var lines=csv.split("\n");
+        
+          var result = [];
+        
+          var headers=lines[0].split(",");
+        
+          for(var i=1;i<lines.length;i++){
+        
+              var obj = {};
+              var currentline=lines[i].split(",");
+        
+              for(var j=0;j<headers.length;j++){
+                  obj[headers[j]] = currentline[j];
+              }
+        
+              result.push(obj);
+        
+          }
+          
+          //return result; //JavaScript object
+          //return JSON.stringify(result); //JSON
+        
+            var div = document.getElementById('site-content');
+            var data = result;
+            //div.innerHTML += data;
+            //data.forEach(data => console.log(item));
+            //   for (i = 0; i < data.length; i++) {
+            // 	console.log(data[i]);
+            //   } 
+            data.forEach(function(data) {
+                //console.log(data.entry)
+                if (data.entry.substring(0,3) == '"""') {
+                    if (data.entry.includes('collected')) {
+                        console.log(data.entry)
+                    }
+                }
+            });
+        }
+        
+        
+        
+        </script>
+
+</body>
+</html>
