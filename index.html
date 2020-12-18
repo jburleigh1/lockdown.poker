@@ -10,7 +10,7 @@
 
     <h1>Lockdown Poker</h1>
 
-    <div id="results">
+    <div>
         <table>
             <thead>
               <tr>
@@ -24,74 +24,99 @@
                 <th>Full House</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>                
-              </tr>
+            <tbody id="results">
             </tbody>
             </table>
     </div>
     
     <script>
-        //var csv is the CSV file with headers
-        
-        fetch('/log.csv')
-          .then(response => response.text())
-          .then((data) => {
-            console.log(data)
-            log = data;
-            csvJSON(log)
-          })
-        
-        
-        function csvJSON(csv){
-        
-          var lines=csv.split("\n");
-        
-          var result = [];
-        
-          var headers=lines[0].split(",");
-        
-          for(var i=1;i<lines.length;i++){
-        
-              var obj = {};
-              var currentline=lines[i].split(",");
-        
-              for(var j=0;j<headers.length;j++){
-                  obj[headers[j]] = currentline[j];
-              }
-        
-              result.push(obj);
-        
-          }
-          
-          //return result; //JavaScript object
-          //return JSON.stringify(result); //JSON
-        
-            var div = document.getElementById('site-content');
-            var data = result;
-            //div.innerHTML += data;
-            //data.forEach(data => console.log(item));
-            //   for (i = 0; i < data.length; i++) {
-            // 	console.log(data[i]);
-            //   } 
-            data.forEach(function(data) {
-                //console.log(data.entry)
-                if (data.entry.substring(0,3) == '"""') {
-                    if (data.entry.includes('collected')) {
-                        console.log(data.entry)
-                    }
-                }
-            });
+
+        function pokerWall(opts) {
+            this._opts = opts;
+            this._logFile = opts.logFile;
+            // call get data function
+            this._getData(this._logFile);
         }
+
+		pokerWall.prototype = Object.create(null,{
+			constructor: {
+				value: pokerWall
+            },  
+            _getData:{
+                value: function(log){
+                    fetch(log)
+                    .then(response => response.text())
+                    .then((data) => {
+                        console.log('data recieved - passing to convert to json function')
+                        this._convertCsvToJson(data)
+                    })
+                }
+            },
+            _convertCsvToJson: {
+                value: function(data){
+                    var lines=data.split("\n");
+                    var result = [];
+                    var headers=lines[0].split(",");
+                    for(var i=1;i<lines.length;i++){
+                        var obj = {};
+                        var currentline=lines[i].split(",");
+                        for(var j=0;j<headers.length;j++){
+                            obj[headers[j]] = currentline[j];
+                        }
+                        result.push(obj);
+                    }
+                    console.log('converted data to json - passing to prettify function')
+                    this._prettifyData(result)
+                }
+            },
+            _prettifyData: {
+                value: function(data){
+                    playerArray = [];
+                    data.forEach(function(data) {
+                        if (data.entry.substring(0,3) == '"""') {
+                            if (data.entry.includes('collected')) {
+                                var entry = data.entry.substring(3);
+                                playerName = entry.split(' @');
+                                playerArray.push(playerName[0]);
+                            }
+                        }
+                    });
+                    console.log('built array of all players, time to find uniques')
+                    this._getPlayerList(playerArray);
+                }
+            },
+            _getPlayerList: {
+                value: function(playerArray){
+                    function findUniquePlayers(value, index, self) {
+                        return self.indexOf(value) === index;
+                    }
+                    var uniquePlayers = playerArray.filter(findUniquePlayers)
+                    console.log('found unique players:')
+                    console.table(uniquePlayers)
+                    this._printPlayerList(uniquePlayers)
+                }
+            },
+            _printPlayerList: {
+                value: function(uniquePlayers) {
+                    uniquePlayers.forEach(function(data) {
+                        var html = '<tr>';
+                            html = '<td>'+data+'</td>';
+                            html += '<td>x</td>';
+                            html += '<td>x</td>';
+                            html += '<td>x</td>';
+                            html += '<td>x</td>';
+                            html += '<td>x</td>';
+                            html += '<td>x</td>';
+                            html += '</tr>';
+                            document.getElementById('results').insertAdjacentHTML('beforeend', html)
+                    })
+                }
+            }
+        })      
         
+        var pokerWall = new pokerWall({
+            logFile: '/log.csv',
+        })
         
         
         </script>
