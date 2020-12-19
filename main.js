@@ -99,11 +99,11 @@ pokerWall.prototype = Object.create(null,{
                     }
                 }
             });
+            this._setShowdowns()
         }
     },
     _setHands: {
         value: function(winner,hand) {
-            console.log(winner +' wins with '+hand)
             var winnerRow = document.body.querySelector('tr[data-name="'+winner+'"]');
             var winCount = winnerRow.children[1].innerHTML;
             if (winCount == 'undefined') {
@@ -117,7 +117,20 @@ pokerWall.prototype = Object.create(null,{
                 handCount = 0;
             }
             handCount++;
-            handColumn.innerHTML = handCount;
+            if (hand !== 'undefined') {
+                handColumn.innerHTML = handCount;
+            }
+        }
+    },
+    _setShowdowns: {
+        value: function() {
+            var playerRows = document.body.querySelectorAll('#results tr');
+            playerRows.forEach(function(row) {
+                var winRow = row.children[1].innerHTML;
+                var showDown = row.children[2].innerHTML;
+                var showDowns = winRow - showDown;
+                row.children[2].innerHTML = showDowns;
+            })
         }
     }
 })      
