@@ -39,7 +39,8 @@ pokerWall.prototype = Object.create(null,{
     _prettifyData: {
         value: function(data){
             playerArray = [];
-            console.log(data)
+            var firstRow = data[(data.length) - 2];
+            var lastRow = data[0];
             data.forEach(function(data) {
                 if (data.entry.substring(0,3) == '"""') {
                     if (data.entry.includes('collected')) {
@@ -51,6 +52,8 @@ pokerWall.prototype = Object.create(null,{
             });
             console.log('built array of all players, time to find uniques')
             this._getPlayerList(playerArray,data);
+            this._getGameTime(firstRow)
+            this._getGameDuration(firstRow,lastRow)
         }
     },
     _getPlayerList: {
@@ -61,14 +64,15 @@ pokerWall.prototype = Object.create(null,{
             var uniquePlayers = playerArray.filter(findUniquePlayers)
             console.log('found unique players:')
             console.table(uniquePlayers)
-            this._printPlayerList(uniquePlayers,data)
+            this._setPlayerList(uniquePlayers,data)
         }
     },
-    _printPlayerList: {
+    _setPlayerList: {
         value: function(uniquePlayers,data) {
             uniquePlayers.forEach(function(name) {
                 var html = '<tr data-name="'+name+'">';
                     html += '<td>'+name+'</td>';
+                    html += '<td></td>';
                     html += '<td></td>';
                     html += '<td data-hand="undefined"></td>';
                     html += '<td data-hand="High Card"></td>';
@@ -84,14 +88,17 @@ pokerWall.prototype = Object.create(null,{
                     html += '</tr>';
                     document.getElementById('results').insertAdjacentHTML('beforeend', html)
             })
+            document.body.querySelector('.cp-game-meta__players').children[0].innerHTML = uniquePlayers.length;
             this._countWins(data)
         }
     },
     _countWins: {
         value: function(data) {
+            var handCount = 0;
             data.forEach(function(data) {
                 if (data.entry.substring(0,3) == '"""') {
                     if (data.entry.includes('collected')) {
+                        handCount++;
                         var entry = data.entry.substring(3);
                         var winner = entry.split(' @')[0];
                         var hand = entry.split('with ')[1];
@@ -100,6 +107,8 @@ pokerWall.prototype = Object.create(null,{
                 }
             });
             this._setShowdowns()
+            this._setHandCount(handCount)
+            this._setWinPercentage(handCount)
         }
     },
     _setHands: {
@@ -127,12 +136,53 @@ pokerWall.prototype = Object.create(null,{
             var playerRows = document.body.querySelectorAll('#results tr');
             playerRows.forEach(function(row) {
                 var winRow = row.children[1].innerHTML;
-                var showDown = row.children[2].innerHTML;
+                var showDown = row.children[3].innerHTML;
                 var showDowns = winRow - showDown;
-                row.children[2].innerHTML = showDowns;
+                row.children[3].innerHTML = showDowns;
             })
         }
-    }
+    },
+    _setHandCount: {
+        value: function(handCount) {
+            document.body.querySelector('.cp-game-meta__hands').children[0].innerHTML = handCount;
+        }
+    },
+    _setWinPercentage: {
+        value: function(handCount) {
+            var playerRows = document.body.querySelectorAll('#results tr');
+            playerRows.forEach(function(row) {
+                var winRow = row.children[1].innerHTML;
+                var percentage = (winRow / handCount) * 100;
+                row.children[2].innerHTML = Math.ceil(percentage) + '%';
+            })
+        }
+    },    
+    _getGameTime: {
+        value: function(firstRow) {
+            var time = firstRow['at'].split('T');
+            var date = new Date(firstRow['at']);
+            var prettyDate = date.toDateString();
+            var time = date.toLocaleTimeString();
+            document.body.querySelector('.cp-game-meta__time').children[0].innerHTML = time;
+            document.body.querySelector('.cp-game-meta__date').children[0].innerHTML = prettyDate;
+        }
+    },
+    _getGameDuration: {
+        value: function(firstRow,lastRow) {
+            var start = new Date(firstRow['at']);
+            var end = new Date(lastRow['at']);
+            var duration = Math.abs(start - end);
+            var milliseconds = parseInt((duration % 1000) / 100),
+            seconds = Math.floor((duration / 1000) % 60),
+            minutes = Math.floor((duration / (1000 * 60)) % 60),
+            hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+            hours = (hours < 10) ? "0" + hours : hours;
+            minutes = (minutes < 10) ? "0" + minutes : minutes;
+            seconds = (seconds < 10) ? "0" + seconds : seconds;
+            var result = hours + " hours, " + minutes + " minutes";
+            document.body.querySelector('.cp-game-meta__duration').children[0].innerHTML = result;
+        }
+    },
 })      
 
 var pokerWall = new pokerWall({

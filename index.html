@@ -7,9 +7,19 @@
     <script src="main.js"></script>
 </head>
 
-<body id="">
+<body>
 
+  <div class="cp-header">
     <h1>Lockdown Poker</h1>
+    <p>An interactive Javascript tool for analyzing games from <a href="https://www.pokernow.club/">Poker Now</a>.</p>
+  </div>
+  <div class="cp-game-meta">
+    <p class="cp-game-meta__date">Date: <span></span></p>
+    <p class="cp-game-meta__time">Time Started: <span></span></p>
+    <p class="cp-game-meta__duration">Game Duration: <span></span></p>
+    <p class="cp-game-meta__players">Number of Players: <span></span></p>
+    <p class="cp-game-meta__hands">Number of Hands: <span></span></p>
+  </div>
 
     <div>
         <table>
@@ -17,6 +27,7 @@
               <tr>
                 <th>Player Name</th>
                 <th>Wins</th>
+                <th>Win %</th>
                 <th>Showdown Wins</th>
                 <th>High Card</th>
                 <th>Pair</th>
